@@ -1,16 +1,20 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const Workout = require('./models/Workout');
-const User = require('./models/User');
+const store = require('./data/store');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/fittrack';
+const MONGO_URI = process.env.MONGO_URI || '';
 
 async function main(){
-  await mongoose.connect(MONGO_URI);
-  console.log('Connected to Mongo for seeding');
-  await Workout.deleteMany({});
-  await User.deleteMany({});
+  if (MONGO_URI) {
+    await mongoose.connect(MONGO_URI);
+    console.log('Connected to Mongo for seeding');
+  } else {
+    console.log('No MONGO_URI — seeding lowdb fallback');
+  }
+  await store.init();
+  await store.workout.deleteMany();
+  await store.user.deleteMany();
 
   const workouts = [];
   const types = ['Cardio','Strength','HIIT','Stretching','Yoga','Cycling'];
@@ -29,9 +33,9 @@ async function main(){
     });
   }
 
-  await Workout.insertMany(workouts);
+  await store.workout.insertMany(workouts);
   const pw = await bcrypt.hash('password123', 10);
-  await User.create({ username: 'admin', email: 'admin@example.com', passwordHash: pw });
+  await store.user.create({ username: 'admin', email: 'admin@example.com', passwordHash: pw });
   console.log('Seeded 20 workouts and admin user (username: admin, password: password123)');
   process.exit(0);
 }
