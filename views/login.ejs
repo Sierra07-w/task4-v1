@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Login - FitTrack</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main>
+      <div class="card" style="max-width:520px;margin:28px auto">
+        <h1>Login</h1>
+        <% if (typeof error !== 'undefined') { %>
+          <p class="error"><%= error %></p>
+        <% } %>
+        <form method="post" action="/auth/login">
+          <label>Username<br><input name="username" required></label>
+          <label>Password<br><input name="password" type="password" required></label>
+          <button>Login</button>
+        </form>
+        <p class="muted">No account? <a href="/auth/signup">Create an account</a></p>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+  </body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Edit Workout - FitTrack</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main>
+      <div class="card" style="max-width:720px;margin:18px auto">
+        <h1>Edit Workout</h1>
+        <form id="edit-form">
+          <label>Name<br><input name="name" required></label>
+          <label>Type<br><input name="type" required></label>
+          <div style="display:flex;gap:12px">
+            <div style="flex:1"><label>Duration (minutes)<br><input name="durationMinutes" type="number" required></label></div>
+            <div style="flex:1"><label>Calories<br><input name="caloriesBurned" type="number"></label></div>
+          </div>
+          <label>Intensity<br>
+            <select name="intensity">
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </select>
+          </label>
+          <label>Date<br><input name="date" type="date" required></label>
+          <label>Equipment<br><input name="equipment"></label>
+          <label>Notes<br><textarea name="notes"></textarea></label>
+          <div style="display:flex;gap:12px;align-items:center">
+            <button type="submit">Save</button>
+            <a href="/" class="muted">Back</a>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <%- include('partials/footer') %>
+    <script>
+      const id = '<%= id %>';
+      async function load(){
+        const res = await fetch('/api/workouts/' + id);
+        const data = await res.json();
+        const f = document.getElementById('edit-form');
+        for (const k of ['name','type','durationMinutes','caloriesBurned','intensity','date','equipment','notes']){
+          if (f[k]) f[k].value = data[k] ? (k==='date' ? new Date(data[k]).toISOString().slice(0,10) : data[k]) : '';
+        }
+      }
+      document.getElementById('edit-form').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target).entries());
+        const res = await fetch('/api/workouts/' + id, { method: 'PUT', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(data) });
+        if (res.ok) location.href = '/';
+        else alert('Error: ' + (await res.json()).error);
+      });
+      load();
+    </script>
+  </body>
+</html>
